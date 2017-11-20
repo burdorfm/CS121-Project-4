@@ -7,29 +7,19 @@ import time
 
 class SnakeHead(Agent):
 
-    WIDTH = 1
-    LENGTH = 1
+    WIDTH     = 1
+    LENGTH    = 1
 
     def __init__(self,world):
         self.length = self.LENGTH
         self.width  = self.WIDTH
         self.direction = "right"
-        self.agility = self.length / 4
-        position = world.bounds.point_at(.5,.5)
-        Agent.__init__(self,position,world)
-        
-    def keep_within_bounds(self):
-        if self.position.y - self.length/2.0 < self.world.bounds.ymin:
-            self.position.y = self.world.bounds.ymin + self.length/2.0
-        if self.position.y + self.length/2.0 > self.world.bounds.ymax:
-            self.position.y = self.world.bounds.ymax - self.length/2.0
-        if self.position.x - self.width/2.0 < self.world.bounds.xmin:
-            self.position.x = self.world.bounds.xmin + self.width/2.0
-        if self.position.x + self.width/2.0 > self.world.bounds.xmax:
-            self.position.x = self.world.bounds.xmax - self.width/2.0
+        self.agility = self.length/2
+        self.position = world.bounds.point_at(.5,.5)
+        Agent.__init__(self,self.position,world)
 
     def color(self):
-            return "#FF8040"
+        return "#FF8040"
 
     def shape(self):
         p1 = self.position + Vector2D( self.width/2.0, self.length/2.0)       
@@ -40,16 +30,12 @@ class SnakeHead(Agent):
         
     def move_down(self):
         self.position.y -= self.agility
-        self.keep_within_bounds()
     def move_up(self):
         self.position.y += self.agility
-        self.keep_within_bounds()
     def move_left(self):
         self.position.x -= self.agility
-        self.keep_within_bounds()
     def move_right(self):
         self.position.x += self.agility
-        self.keep_within_bounds()
 
     def updatePos(self, direction):
         if direction == "up":
@@ -65,12 +51,11 @@ class SnakeHead(Agent):
         self.direction = direction
         
     def update(self):
-        self.keep_within_bounds()
         self.updatePos(self.direction)
 
 class SnakeBody(Agent):
     def __init__(self,world,followObject):
-        self.position = followObject.position + Vector2D(-followObject.width, 0)
+        self.position = self.initPosition(followObject)
         self.length = followObject.length
         self.width = followObject.width
         self.direction = followObject.direction
@@ -82,15 +67,16 @@ class SnakeBody(Agent):
 
         Agent.__init__(self,self.position,world)
         #instantiates
-    def keep_within_bounds(self):
-        if self.position.y - self.length/2.0 < self.world.bounds.ymin:
-            self.position.y = self.world.bounds.ymin + self.length/2.0
-        if self.position.y + self.length/2.0 > self.world.bounds.ymax:
-            self.position.y = self.world.bounds.ymax - self.length/2.0
-        if self.position.x - self.width/2.0 < self.world.bounds.xmin:
-            self.position.x = self.world.bounds.xmin + self.width/2.0
-        if self.position.x + self.width/2.0 > self.world.bounds.xmax:
-            self.position.x = self.world.bounds.xmax - self.width/2.0
+
+    def initPosition(self, followObject):
+        if followObject.direction == "right" or followObject.direction == None:
+            return followObject.position + Vector2D(-followObject.width, 0)
+        elif followObject.direction == "left":
+            return followObject.position + Vector2D(followObject.width, 0)
+        elif followObject.direction == "up":
+            return followObject.position + Vector2D(0, -followObject.length)
+        elif followObject.direction == "down":
+            return followObject.position + Vector2D(0, followObject.length)
 
     def color(self):
             return "#FF8040"
@@ -104,16 +90,12 @@ class SnakeBody(Agent):
         
     def move_down(self):
         self.position.y -= self.agility
-        self.keep_within_bounds()
     def move_up(self):
         self.position.y += self.agility
-        self.keep_within_bounds()
     def move_left(self):
         self.position.x -= self.agility
-        self.keep_within_bounds()
     def move_right(self):
         self.position.x += self.agility
-        self.keep_within_bounds()
 
     def updatePos(self, direction):
         if self.storedDirection != self.frontSeg.direction:
@@ -144,22 +126,46 @@ class SnakeBody(Agent):
         self.direction = direction
         
     def update(self):
-        self.keep_within_bounds()
         self.updatePos(self.direction)
-
-
 
 class Snake:
     def __init__(self, world):
         self.head = SnakeHead(world)
-        self.tail = SnakeBody(world, head)
+        self.tail = SnakeBody(world, self.head)
+        self.world = world
+        self.length = 2
 
-    def grow():
-        newTail = SnakeBody(world, tail)
+    def grow(self):
+        newTail = SnakeBody(self.world, self.tail)
+        self.tail = newTail
+        self.length += 1
+    def changeDir(self, direction):
+        self.head.changeDirection(direction)
+
+class Apple(Agent):
+    def __init__(self, world):
+        self.position = world.bounds.point_at(random.uniform(.007,1.1),random.uniform(.007,.987))  #.007x-.903  .140-.987y
+        self.width = 1
+        self.length = 1
+        Agent.__init__(self,self.position,world)
+
+    def shape(self):
+        p1 = self.position + Vector2D( self.width/2.0, self.length/2.0)       
+        p2 = self.position + Vector2D(-self.width/2.0, self.length/2.0)        
+        p3 = self.position + Vector2D(-self.width/2.0,-self.length/2.0)       
+        p4 = self.position + Vector2D( self.width/2.0,-self.length/2.0)       
+        return [p1, p2, p3, p4]
+    def color(self):
+        return "white"
+    def update(self):
+        return
+
+
+
 class PlaySnake(Game):
 
     def __init__(self):
-        Game.__init__(self,"Snake",60.0,45.0,1500,600,topology='bound',console_lines=6)
+        Game.__init__(self,"Snake",1500/7.5,80,1500,600,topology='wrapped',console_lines=6)
         
         self.report("player: use a,w,s,d to move")
         self.report("player: don't hit your body or the walls")
@@ -168,35 +174,28 @@ class PlaySnake(Game):
         self.left_score  = 0
         self.right_score = 0
         self.use_mouse   = False
-        #self.snake = Snake(self)
-        self.snakehead  = SnakeHead(self)
-        self.snakebody = SnakeBody(self, self.snakehead)
+        self.snake = Snake(self)
+        self.food = Apple(self)
 
 
-        i = 0
-        pointer = self.snakebody
-        while i < 40:
-            a = SnakeBody(self, pointer)
-            pointer = a
-            i += 1
-
-
-    def handle_keypress(self,event):
+    def handle_keypress(self,event):       #requires changes!!!
         Game.handle_keypress(self,event)
         if event.char == ' ':
-            self.use_mouse = not self.use_mouse
+            self.snake.grow()
+            self.remove(self.food)
+            self.food = Apple(self)
         elif event.char == 'w' and not self.use_mouse: #SNEK UP
-            if self.snakehead.direction != "down":
-                self.snakehead.changeDirection("up")
+            if self.snake.head.direction != "down":
+                self.snake.changeDir("up")
         elif event.char == 's' and not self.use_mouse: #SNEK DOWN
-            if self.snakehead.direction != "up":
-                self.snakehead.changeDirection("down")
+            if self.snake.head.direction != "up":
+                self.snake.changeDir("down")
         elif event.char == 'd' and not self.use_mouse:
-            if self.snakehead.direction != "left":
-                self.snakehead.changeDirection("right")
+            if self.snake.head.direction != "left":
+                self.snake.changeDir("right")
         elif event.char == 'a' and not self.use_mouse:
-            if self.snakehead.direction != "right":
-                self.snakehead.changeDirection("left")
+            if self.snake.head.direction != "right":
+                self.snake.changeDir("left")
 
         #NEED A CHECK FOR IF EVENT 180 degrees from movement vector
 
@@ -208,6 +207,12 @@ class PlaySnake(Game):
         self.report("LEFT:"+str(self.left_score)+"\tRIGHT:"+str(self.right_score))
 
     def update(self):
+        difVector = self.snake.head.position - self.food.position
+        if abs(difVector.dx) <= self.snake.head.width and abs(difVector.dy) <= self.snake.head.length:
+            self.snake.grow()
+            self.remove(self.food)
+            self.food = Apple(self)
+
         Game.update(self)
 
 game = PlaySnake()
