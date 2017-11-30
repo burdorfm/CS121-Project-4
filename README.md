@@ -1,2 +1,2 @@
 # CS121-Project-4
-Reilly do work
+It's like Slither, only worse.
