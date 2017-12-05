@@ -1,6 +1,6 @@
 from tkinter import *
-from Game import Game, Agent
-from geometry import Point2D, Vector2D
+from Game import *
+from geometry import *
 import math
 import random
 import time
@@ -23,6 +23,7 @@ class SnakeMenuRunner:
         self.root.geometry(str(self.INIT_WIDTH)+"x"+str(self.INIT_HEIGHT))
         self.frame = tk.Frame(self.root)
         self.frame.pack(fill=BOTH, expand=1)
+        self.howMany = 0
         #MAKE A FRAME OF 400X300
         
         self.header = tk.Button(self.frame, text="Snake Menu", fg="red", command=self.write_explanation)
@@ -36,16 +37,21 @@ class SnakeMenuRunner:
     def write_explanation(self):
         self.explanation = tk.Button(self.frame, text="<--This is the snake menu", fg="red", command=self.dont_click_me)
         self.explanation.place(x = 288, y = 10)
+    def setHowMany1(self):
+        self.howMany = 1
+    def setHowMany2(self):
+        self.howMany = 2
     def dont_click_me(self):
         print("don't click me")
     def play(self):
         #game = chosen_game
-        game = Two_Player_Snake.PlaySnake(2, 3)
+        game = Two_Player_Snake.PlaySnake(2, 3, 200, 150, 800, 600, 'yguyjgjkyhgjk')
         while not game.GAME_OVER:
-            time.sleep(1.0/60.0)  # 1.0 is placeholder for variable that changes snake from arcade to modern
+            time.sleep(.1/60.0)  # 1.0 is placeholder for variable that changes snake from arcade to modern
             game.update()
 
-    
+
+a = SnakeMenuRunner()
 
 
 
