@@ -50,7 +50,6 @@ class SnakeMenuRunner:
             time.sleep(.1/60.0)  # 1.0 is placeholder for variable that changes snake from arcade to modern
             game.update()
 
-
 a = SnakeMenuRunner()
 
 
