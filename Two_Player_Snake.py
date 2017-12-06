@@ -37,8 +37,8 @@ maybe make it an io game and call it not slither
 
 class SnakeHead(Agent):
 
-    WIDTH     = 1
-    LENGTH    = 1
+    WIDTH = 1
+    LENGTH = 1
 
     def __init__(self,world, xpos, ypos, direction, color):
         self.length = self.LENGTH
