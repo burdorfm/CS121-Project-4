@@ -37,15 +37,15 @@ maybe make it an io game and call it not slither
 
 class SnakeHead(Agent):
 
-    WIDTH = 1
-    LENGTH = 1
+    WIDTH     = 1
+    LENGTH    = 1
 
     def __init__(self,world, xpos, ypos, direction, color):
         self.length = self.LENGTH
         self.width  = self.WIDTH
         self.frontSeg = None
         self.direction = direction
-        self.agility = self.length/2  #/4 for janky modern snake  #/1 for classic snake
+        self.agility = self.length/4  #/4 for janky modern snake  #/1 for classic snake
         self.position = world.bounds.point_at(xpos,ypos)
         self.initColor = color#"#%06x" % random.randint(0, 0xFFFFFF)
         Agent.__init__(self,self.position,world)
@@ -112,7 +112,7 @@ class SnakeBody(Agent):
         #instantiates
 
     def initPosition(self, followObject):
-        a = random.randint(30,30)
+        a = random.randint(2,2)
         if followObject.direction == None:
             if followObject.position.x > .5:
                 return followObject.position + Vector2D(a*followObject.width, 0)
@@ -190,6 +190,76 @@ class SnakeBody(Agent):
     def update(self):
         self.updatePos(self.direction)
 
+class Bullet(Agent):
+    def __init__(self, world, head):
+        self.length = head.length*2
+        self.width  = head.width*2
+        self.direction = head.direction
+        self.agility = 2*head.agility
+        self.position = self.initPosition(head)
+        self.initColor = "#%06x" % random.randint(0, 0xFFFFFF)
+        Agent.__init__(self,self.position,world)
+
+    def color(self):
+        return self.initColor
+
+    def initPosition(self, followObject):
+        a = random.randint(1,1)
+        if followObject.direction == None:
+            return
+        if followObject.direction == "left":
+            return followObject.position + Vector2D(-a*followObject.width, 0)
+        elif followObject.direction == "right":
+            return followObject.position + Vector2D(a*followObject.width, 0)
+        elif followObject.direction == "down":
+            return followObject.position + Vector2D(0, -a*followObject.length)
+        elif followObject.direction == "up":
+            return followObject.position + Vector2D(0, a*followObject.length)
+
+    def shape(self):
+        p1 = self.position + Vector2D( self.width, self.length)       
+        p2 = self.position + Vector2D(-self.width, self.length)        
+        p3 = self.position + Vector2D(-self.width,-self.length)       
+        p4 = self.position + Vector2D( self.width,-self.length)       
+        return [p1, p2, p3, p4]
+
+    def outOfBounds(self):
+        if self.position.y - self.length/2.0 < self.world.bounds.ymin:
+            return True
+        if self.position.y + self.length/2.0 > self.world.bounds.ymax:
+            return True
+        if self.position.x - self.width/2.0 < self.world.bounds.xmin:
+            return True
+        if self.position.x + self.width/2.0 > self.world.bounds.xmax:
+            return True
+
+        
+    def move_down(self):
+        self.position.y -= self.agility
+    def move_up(self):
+        self.position.y += self.agility
+    def move_left(self):
+        self.position.x -= self.agility
+    def move_right(self):
+        self.position.x += self.agility
+
+    def updatePos(self, direction):
+        if direction == "up":
+            self.move_up()
+        elif direction == "down":           
+            self.move_down()
+        elif direction == "right":
+            self.move_right()
+        elif direction == "left":
+            self.move_left()
+
+    def changeDirection(self, direction):
+        self.direction = direction
+        
+    def update(self):
+        self.updatePos(self.direction)
+    
+
 class Snake:
     def __init__(self, world, init_xpos, init_ypos):
         self.headColor = "#%06x" % random.randint(0, 0xFFFFFF)
@@ -202,6 +272,19 @@ class Snake:
         self.world = world
         self.length = 2
         self.dead = False
+    def shoot(self):
+        if self.head.direction == None:
+            return
+        if self.length == 1:
+            self.dead = True
+            self.world.remove(self.head)
+            return
+        temp = self.tail
+        self.tail = self.tail.frontSeg
+        self.world.remove(temp)
+        self.length -= 1
+        a = Bullet(self.world, self.head)
+        self.snakeList.append(a)
 
     def grow(self):
         newTail = SnakeBody(self.world, self.tail, self.tailColor)
@@ -253,17 +336,17 @@ class PlaySnake(Game):
         self.report("Player(s): Eat to grow.")
         self.report("player1: use a,w,s,d to move.      player2: use arrow keys to move.")
         self.report("player1: press d to start.         player2: press left arrow to start.")
+        self.numAlive = self.numSnakes
 
 
 
     def handle_keypress(self,event):       #requires changes!!!
-
         Game.handle_keypress(self,event)
         if event.char == ' ':
             for snakes in self.snakeList:
                 snakes.grow()
-        if len(self.snakeList) < 1:
-            return
+        if event.char == 'f':
+            self.snakeList[0].shoot()
         elif event.char == 'w': #SNEK UP
             if self.snakeList[0].head.direction != "down":
                 if self.snakeList[0].head.direction != None:
@@ -282,8 +365,8 @@ class PlaySnake(Game):
             if self.snakeList[0].head.direction != "right":
                 if self.snakeList[0].head.direction != None:
                     self.snakeList[0].changeDir("left")
-        elif len(self.snakeList) < 2:
-            return
+        elif event.char == ';':
+            self.snakeList[1].shoot()
         elif event.keysym_num == 65364: #SNEK UP
             if self.snakeList[1].head.direction != "up":
                 if self.snakeList[1].head.direction != None:
@@ -330,27 +413,14 @@ class PlaySnake(Game):
 
             for y in range(0, len(self.snakeList)):
                 if y == x:
-                    otherSnakeTail = self.snakeList[y].tail
-                    currentSnakeHead = currentSnake.head   #MAYBE IGNORE SEFMENT 1 BEFORE HEAD DUE TO TURNING ISSUES!!!
-                    while otherSnakeTail.frontSeg != None:
+                    h = 0
+                    currentSnakeHead = currentSnake.head
+                    for otherSnakeTail in self.snakeList[y].snakeList:
+                        if h == 0:
+                            h+=1
+                            continue
                         difVector = otherSnakeTail.position - currentSnakeHead.position
-                        if abs(difVector.dx) <= currentSnakeHead.width/1.1 and abs(difVector.dy) <= currentSnakeHead.length/1.1: #2.01 for janky modern snake #2.00 for classic snake
-                            #ADD AN IF STATEMENT!!!!!!!!!!!!!! FOR IF HEADS COLLLIDE!!!!
-                            if currentSnakeHead in self.agents: 
-                                self.report()
-                                self.report()
-                                self.report()
-                                self.report("Snake" + str(self.snakeList[x]) + " has hit itself and is now dead.")
-                                self.remove(currentSnakeHead)
-                                self.snakeList[x].kill()
-                            #self.GAME_OVER = True
-                        otherSnakeTail = otherSnakeTail.frontSeg
-                else:
-                    otherSnakeTail = self.snakeList[y].tail
-                    currentSnakeHead = currentSnake.head   #MAYBE IGNORE SEFMENT 1 BEFORE HEAD DUE TO TURNING ISSUES!!!
-                    while otherSnakeTail.frontSeg != None:
-                        difVector = otherSnakeTail.position - currentSnakeHead.position
-                        if abs(difVector.dx) <= currentSnakeHead.width/1.1 and abs(difVector.dy) <= currentSnakeHead.length/1.1: #2.01 for janky modern snake #2.00 for classic snake
+                        if abs(difVector.dx) <= currentSnakeHead.width/1.2 and abs(difVector.dy) <= currentSnakeHead.length/1.2: #2.01 for janky modern snake #2.00 for classic snake
                             #ADD AN IF STATEMENT!!!!!!!!!!!!!! FOR IF HEADS COLLLIDE!!!!
                             if currentSnakeHead in self.agents: 
                                 self.report()
@@ -359,20 +429,39 @@ class PlaySnake(Game):
                                 self.report("Snake" + str(self.snakeList[x]) + " has hit Snake" + str(self.snakeList[y]) + " and is now dead.")
                                 self.remove(currentSnakeHead)
                                 self.snakeList[x].kill()
+                                self.numAlive -= 1
                             #self.GAME_OVER = True
-                        otherSnakeTail = otherSnakeTail.frontSeg
-                    difVector = otherSnakeTail.position - currentSnakeHead.position
-                    if abs(difVector.dx) <= currentSnakeHead.width/1.1 and abs(difVector.dy) <= currentSnakeHead.length/1.1: #2.01 for janky modern snake #2.00 for classic snake
-                        if otherSnakeTail in self.agents:
-                            self.report()
-                            self.report()
-                            self.report()
-                            self.report("Snakes " + str(self.snakeList[x]) + " and " + str(self.snakeList[y]) + " have bumped heads and are now dead.")
-                            self.remove(otherSnakeTail)
-                            self.snakeList[y].kill()
-                        if currentSnakeHead in self.agents:
-                            self.remove(currentSnakeHead)
-                            self.snakeList[x].kill()
+                    
+                    
+                else:
+                    currentSnakeHead = currentSnake.head
+                    for otherSnakeTail in self.snakeList[y].snakeList:
+                        if currentSnakeHead.agility / otherSnakeTail.agility < 1:
+                            difVector = otherSnakeTail.position - currentSnakeHead.position
+                            if abs(difVector.dx) <= currentSnakeHead.width/.26 and abs(difVector.dy) <= currentSnakeHead.length/.26: #2.01 for janky modern snake #2.00 for classic snake
+                                #ADD AN IF STATEMENT!!!!!!!!!!!!!! FOR IF HEADS COLLLIDE!!!!
+                                if currentSnakeHead in self.agents: 
+                                    self.report()
+                                    self.report()
+                                    self.report()
+                                    self.report("Snake" + str(self.snakeList[x]) + " has missiled Snake" + str(self.snakeList[y]) + " and is now dead.")
+                                    self.remove(currentSnakeHead)
+                                    self.snakeList[x].kill()
+                                    self.numAlive -= 1
+                            #self.GAME_OVER = True
+                            continue
+                        difVector = otherSnakeTail.position - currentSnakeHead.position
+                        if abs(difVector.dx) <= currentSnakeHead.width/1.2 and abs(difVector.dy) <= currentSnakeHead.length/1.2: #2.01 for janky modern snake #2.00 for classic snake
+                            #ADD AN IF STATEMENT!!!!!!!!!!!!!! FOR IF HEADS COLLLIDE!!!!
+                            if currentSnakeHead in self.agents: 
+                                self.report()
+                                self.report()
+                                self.report()
+                                self.report("Snake" + str(self.snakeList[x]) + " has hit Snake" + str(self.snakeList[y]) + " and is now dead.")
+                                self.remove(currentSnakeHead)
+                                self.snakeList[x].kill()
+                                self.numAlive -= 1
+                            #self.GAME_OVER = True
         
         if self.topology == 'wrapped':
             for x in self.snakeList:
@@ -384,6 +473,7 @@ class PlaySnake(Game):
                 if x.head in self.agents and x.head.outOfBounds() == True:
                     self.remove(x.head)
                     self.report(str(x) + " has run into a wall")
+                    self.numAlive -= 1
 
         i = 0
         for x in self.snakeList:
