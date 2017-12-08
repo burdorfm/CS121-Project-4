@@ -194,6 +194,10 @@ class SnakeMenuRunner:
         self.playthegame = tk.Button(self.frame, text = "Play with these settings", fg = "Red", command = self.play)
         self.playthegame.place(x = 150, y = 430)
 
+        self.count = 0
+        self.hidden_game_within_game = tk.Button(self.frame, text = "Don't click me!!!", fg = "Red", command = lambda: self.hidden_game(self.count))
+        self.hidden_game_within_game.place(x = 480, y = 500)
+
         #add settings, arena size: small, medium, large, other styles
 
         self.use_mouse = True  #maybe use a mouse thing to determine snake movement
@@ -236,6 +240,8 @@ class SnakeMenuRunner:
     def setMovementSpeed(self):
         self.movementSpeed = self.movS.get()
         if self.agility == .25:
+            if self.movementSpeed > 5:
+                self.agility = .5
             timeSleep = 4.0/self.movementSpeed
         else:
             timeSleep = 6.0/self.movementSpeed
@@ -309,6 +315,12 @@ class SnakeMenuRunner:
         self.Choice5 = tk.Button(self.frame, text = the_size, fg = "Green", command = lambda: self.report("Do not click me")) #'self.players(1)'
         self.Choice5.place(x = 485, y = 180)
         self.Choice5.configure(width = 10)
+    def hidden_game(self, count):
+        if count == 0:
+            self.report("congratulations!!! You have discovered the extremely well concealed game within a\n  game worth about 8 points! Click this button again to play the game DodgeBall\n  (more like DodgeSquare actually lol)")
+            self.count += 1
+        else:
+            self.play2()
     def setType(self, theType):
         if theType == "arcade":
             self.agility = 1
@@ -336,6 +348,11 @@ class SnakeMenuRunner:
             time.sleep(a/60.0)  # 1.0 is placeholder for variable that changes snake from arcade to modern
             game.update()
         game.removeThis()
-        
+    def play2(self):
+        game = Two_Player_Snake.PlayDodgeBall(200, 120, 1000, 600)
+        while not game.GAME_OVER:
+            time.sleep(1.0/60.0)  # 1.0 is placeholder for variable that changes snake from arcade to modern
+            game.update() 
+        game.removeThis()     
 
 a = SnakeMenuRunner()

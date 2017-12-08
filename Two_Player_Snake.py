@@ -281,16 +281,19 @@ class Snake:
         if self.head.direction == None:
             return
         if self.length == 1:
-            self.dead = True
-            self.world.remove(self.head)
             return
         temp = self.tail
         self.tail = self.tail.frontSeg
         self.world.remove(temp)
+        self.snakeList.remove(temp)
         self.length -= 1
         a = Bullet(self.world, self.head)
         self.snakeList.append(a)
-
+    def shrink(self):
+        self.length -= 1
+        temp = self.tail
+        self.tail = self.tail.frontSeg
+        self.world.remove(temp)
     def grow(self):
         newTail = SnakeBody(self.world, self.tail, self.tailColor, self.minAdd, self.maxAdd)
         self.tail = newTail
@@ -331,7 +334,7 @@ class Apple(Agent):
 class PlaySnake(Game):
 
     def __init__(self, numSnakes, foodNumber, bw, bh, ww, wh, topology, agility, bullets, gameType):
-        Game.__init__(self,"2PSnake",bw,bh,ww,wh,topology,console_lines=6)
+        Game.__init__(self,"Snake",bw,bh,ww,wh,topology,console_lines=6)
         if gameType == "Crazy":
             self.minAdd = 1
             self.maxAdd = 20
@@ -353,7 +356,16 @@ class PlaySnake(Game):
             self.snakeList.append(Snake(self, .5 + (-1)**(x+1)*.2, .5+(-1)**(x+1)*.2, agility, self.minAdd, self.maxAdd))
         self.food = Apple(self)
         self.foodNumber = foodNumber
-        self.game_over = False                      
+        self.game_over = False
+        if self.numSnakes == 2:
+            self.report("player1: use a,w,s,d to move.      player2: use arrow keys to move.")
+            if self.bullets:
+                self.report("player1 shoots with 'f' and player2 shoots with ';'")
+            if topology != "wrapped":
+                self.report("do not hit walls or any snake's body. that will kill you")
+            else:
+                self.report("passing into a wall will let you wrap around the screen")
+            self.report("player1: press d to start.         player2: press left arrow to start.")
 
     def handle_keypress(self,event):       #requires changes!!!
         Game.handle_keypress(self,event)
@@ -380,7 +392,7 @@ class PlaySnake(Game):
                     self.snakeList[0].changeDir("left")
         elif event.char == ';':
             if self.bullets:
-                self.snakeList[0].shoot()
+                self.snakeList[1].shoot()
         elif event.char == "k": 
             if self.snakeList[1].head.direction != "up":
                 if self.snakeList[1].head.direction != None:
@@ -433,6 +445,7 @@ class PlaySnake(Game):
                         difVector = otherSnakeTail.position - currentSnakeHead.position
                         if currentSnakeHead.agility / otherSnakeTail.agility < 1:
                             difVector = otherSnakeTail.position - currentSnakeHead.position
+                            print(difVector)
                             if abs(difVector.dx) <= currentSnakeHead.width/.34 and abs(difVector.dy) <= currentSnakeHead.length/.34: #2.01 for janky modern snake #2.00 for classic snake
                                 if currentSnakeHead in self.agents: 
                                     self.report()
@@ -506,7 +519,8 @@ class PlaySnake(Game):
             quiklist.append(x)
         if self.numAlive == 1 and self.numStarted == 2:
             if not self.game_over:
-                self.report(str(quiklist[0]) + "has won the game!!!" + "\nGAME IS OVER. GOOD JOB WINNER!")
+                if len(quiklist) == 1:
+                    self.report(str(quiklist[0]) + "has won the game!!!" + "\nGAME IS OVER. GOOD JOB WINNER!")
             self.game_over = True
         if self.numAlive == 0:
             self.report("everybody ded, this game instance will now close (please wait)")
@@ -518,3 +532,66 @@ class PlaySnake(Game):
         #self.canvas.destroy()
         self.canvas.pack_forget()
         self.root.destroy()
+
+class PlayDodgeBall(Game):
+    def __init__(self, bw, bh, ww, wh, topology = "wrapped"):
+        Game.__init__(self,"Snake",bw,bh,ww,wh,topology,console_lines=6)
+        self.dodger = Snake(self, .3, .3, .5, 1, 1)
+        self.dodger.shrink()
+        self.game_over = False
+        self.time0 = time.time()
+        self.counter = 1
+
+    def handle_keypress(self,event):
+        Game.handle_keypress(self,event)
+        if (event.char == 'w' or event.char == 's' or event.char == 'd' or event.char == 'a') and self.dodger.head.direction == None:
+            self.time0 = time.time()
+        if event.char == 'w': 
+            self.dodger.changeDir("up")
+        elif event.char == 's': 
+            self.dodger.changeDir("down")
+        if event.char == 'd':
+            self.dodger.changeDir("right")
+        if event.char == 'a':
+            self.dodger.changeDir("left")
+                
+    def update(self):
+        if self.dodger.head.direction == None:
+            doNothing = None
+        else:
+            self.time1 = time.time()
+            if self.time1 - self.time0 > self.counter:
+                self.dodger.grow()
+                self.dodger.shoot()
+                self.counter += 1
+                self.report("Snake has survived for " + str(int(self.time1 - self.time0)) + " seconds")
+
+            for segments in self.dodger.snakeList:
+                if segments.outOfBounds():
+                    segments.position = Bounds.wrap(self.bounds, segments.position)
+    
+
+            i = 0
+            for x in self.dodger.snakeList:
+                if i == 0:
+                    i+=1
+                    continue
+                if len(self.dodger.snakeList) == 1:
+                    continue
+                if x.agility / self.dodger.head.agility > 1:
+                    difVector = x.position - self.dodger.head.position
+                    if abs(difVector.dx) <= 1/.30 and abs(difVector.dy) <= 1/.30:
+                        self.report("you have died")
+                        self.report("Congrats! You survived for " + str(int(self.time1 - self.time0)) + " seconds.")
+                        self.GAME_OVER = True
+
+        Game.update(self)
+    def removeThis(self):
+        time.sleep(3.0)
+        #self.destroy()
+        #self.canvas.destroy()
+        self.canvas.pack_forget()
+        self.root.destroy()
+        
+        
+    
