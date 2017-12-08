@@ -16,7 +16,8 @@ class SnakeMenuRunner:
         self.report("player1: use a,w,s,d to move.      player2: use arrow keys to move.")
         self.report("player1: press d to start.         player2: press left arrow to start.")
         """ #steal report
-
+        self.x_size = 150
+        self.y_size = 90
         self.INIT_WIDTH = 500
         self.INIT_HEIGHT = 600
         self.explanation = None
@@ -78,13 +79,13 @@ class SnakeMenuRunner:
         self.arenaisze = tk.Button(self.frame, text="Arena Size: ", fg="Red", command=None)
         self.arenaisze.place(x = 30, y = 180)
 
-        self.smallarena = tk.Button(self.frame, text="Small", fg="Green", command=None)
+        self.smallarena = tk.Button(self.frame, text="Small", fg="Green", command= lambda: self.setArenaSize('small'))
         self.smallarena.place(x = 175, y = 180)
 
-        self.mediumarena = tk.Button(self.frame, text="Medium", fg="Green", command=None)
+        self.mediumarena = tk.Button(self.frame, text="Medium", fg="Green", command=lambda: self.setArenaSize('medium'))
         self.mediumarena.place(x = 235, y = 180)
 
-        self.largearena = tk.Button(self.frame, text="Large", fg="Green", command=None)
+        self.largearena = tk.Button(self.frame, text="Large", fg="Green", command=lambda: self.setArenaSize('large'))
         self.largearena.place(x = 310, y = 180)
 
         self.gametypes = tk.Button(self.frame, text="Game Modes: Pick one from each row.", fg="Green", command=None)
@@ -157,15 +158,21 @@ class SnakeMenuRunner:
     def write_explanation(self):
         self.explanation = tk.Button(self.frame, text="<--This is the snake menu", fg="red", command=self.dont_click_me)
         self.explanation.place(x = 295, y = 10)
-    def setHowMany1(self):
-        self.howMany = 1
-    def setHowMany2(self):
-        self.howMany = 2
+    def setArenaSize(the_size): 
+        if the_size == 'small':
+            self.x_size = 90
+            self.y_size = 54
+        elif the_size == 'medium':
+            self.x_size = 150
+            self.y_size = 90
+        else:
+            self.x_size = 250
+            self.y_size = 150
     def dont_click_me(self):
         print("don't click me")
     def play(self):
         #game = chosen_game
-        game = Two_Player_Snake.PlaySnake(2, 3, 200, 150, 2000,600, 'yguyjgjkyhgjk')
+        game = Two_Player_Snake.PlaySnake(2, 3, self.x_size, self.y_size, 1000,600, 'yguyjgjkyhgjk')
         while not game.GAME_OVER:
             time.sleep(.1/60.0)  # 1.0 is placeholder for variable that changes snake from arcade to modern
             game.update()
