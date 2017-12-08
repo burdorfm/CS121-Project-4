@@ -26,10 +26,6 @@ arcade vs non-arcade snake (whether or not you can turn in less than .length
 
 battle snake (2-player)
 
-maybe variable sized arena
-maybe more than 2-player snake
-maybe fix bug with changing directions
-maybe make it an io game and call it not slither
 
 """
 
@@ -98,7 +94,7 @@ class SnakeHead(Agent):
     def update(self):
         self.updatePos(self.direction)
 
-class SnakeBody(Agent):
+class SnakeBody(Agent): # objects that follow the head. each follows the object in front of it.
     def __init__(self,world,followObject, color, minAdd, maxAdd):
         self.position = self.initPosition(followObject, minAdd, maxAdd)
         self.length = followObject.length
@@ -193,7 +189,7 @@ class SnakeBody(Agent):
     def update(self):
         self.updatePos(self.direction)
 
-class Bullet(Agent):
+class Bullet(Agent): # bullet that the snake can shoot as weapon (useful for two player snake)
     def __init__(self, world, head):
         self.length = head.length*1.5
         self.width  = head.width*1.5
@@ -263,7 +259,7 @@ class Bullet(Agent):
         self.updatePos(self.direction)
     
 
-class Snake:
+class Snake: 
     def __init__(self, world, init_xpos, init_ypos, agility, minAdd, maxAdd):
         self.headColor = "#%06x" % random.randint(0, 0xFFFFFF)
         self.tailColor = "#%06x" % random.randint(0, 0xFFFFFF)
@@ -367,7 +363,7 @@ class PlaySnake(Game):
                 self.report("passing into a wall will let you wrap around the screen")
             self.report("player1: press d to start.         player2: press left arrow to start.")
 
-    def handle_keypress(self,event):       #requires changes!!!
+    def handle_keypress(self,event):       
         Game.handle_keypress(self,event)
         """if event.char == ' ':
             for snakes in self.snakeList:
@@ -475,7 +471,7 @@ class PlaySnake(Game):
                         if currentSnakeHead.agility / otherSnakeTail.agility < 1:
                             difVector = otherSnakeTail.position - currentSnakeHead.position
                             if abs(difVector.dx) <= currentSnakeHead.width/.34 and abs(difVector.dy) <= currentSnakeHead.length/.34: #2.01 for janky modern snake #2.00 for classic snake
-                                #ADD AN IF STATEMENT!!!!!!!!!!!!!! FOR IF HEADS COLLLIDE!!!!
+ 
                                 if currentSnakeHead in self.agents: 
                                     self.report()
                                     self.report()
@@ -527,9 +523,7 @@ class PlaySnake(Game):
             self.GAME_OVER = True
         Game.update(self)
     def removeThis(self):
-        time.sleep(3.0)
-        #self.destroy()
-        #self.canvas.destroy()
+        time.sleep(3.0)iikl
         self.canvas.pack_forget()
         self.root.destroy()
 
