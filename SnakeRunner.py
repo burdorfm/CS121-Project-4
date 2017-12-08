@@ -7,7 +7,7 @@ import time
 import Two_Player_Snake
 import tkinter as tk
 
-class SnakeMenuRunner:
+class SnakeMenuRunner: # this is the menu that runs all of our versions of snake
     def __init__(self, console_lines = 8):
         #Game.__init__(self,"Snake Menu",60,45,800,600,topology='wrapped',console_lines=6)
         """
@@ -38,6 +38,8 @@ class SnakeMenuRunner:
             self.text.pack()
         else:
             self.text = None
+            
+        # below is the code for all of our buttons in the menu
 
         self.currentChoice = tk.Button(self.frame, text="Current Choice", fg="red", command=self.explain_currentChoice)
         self.currentChoice.place(x = 485, y = 10)
@@ -183,7 +185,7 @@ class SnakeMenuRunner:
         self.wrap_or_no = tk.Button(self.frame, text="No Boundaries?", fg="Red", command=self.wrap_explain)
         self.wrap_or_no.place(x= 30, y = 400)
 
-        self.wrapping = "maybe"
+        self.wrapping = "nope"
 
         self.yeswrap = tk.Button(self.frame, text="Yes", fg="Green", command=lambda: self.setWrap(True))
         self.yeswrap.place(x = 180, y = 400)
@@ -200,8 +202,8 @@ class SnakeMenuRunner:
 
         #add settings, arena size: small, medium, large, other styles
 
-        self.use_mouse = True  #maybe use a mouse thing to determine snake movement
-    def report(self,line=""):
+        self.use_mouse = True  
+    def report(self,line=""): 
         line += "\n\n\n"
         a = "  " + line
         if self.text == None:
@@ -209,7 +211,7 @@ class SnakeMenuRunner:
         else:
             self.text.insert(END, a)
             self.text.see(END)
-    def setNumPlayers(self, num):
+    def setNumPlayers(self, num): #sets the number of players
         self.numPlayers = num
         self.report("set number of sneks to " + str(num))
         if num == 1:
@@ -221,7 +223,7 @@ class SnakeMenuRunner:
             self.Choice.place(x = 485, y = 60)
             self.Choice.configure(width = 10)
 
-    def setGameType(self, gameType):
+    def setGameType(self, gameType): # sets game style
         self.gameType = gameType
         if self.gameType == "Traditional":
             self.Choice = tk.Button(self.frame, text = "Traditional", fg = "Green", command = lambda: self.report("stuff")) #'self.players(1)'
@@ -248,18 +250,12 @@ class SnakeMenuRunner:
 
         return timeSleep
 
-    """def setMovementSpeed(self, movString):
-        self.movementSpeed = movString
-        self.report("set snek movement speed to " + movString)
-        self.Choice2 = tk.Button(self.frame, text = movString, fg = "Green", command = lambda: self.report("your current selection for mOVeMenT Speed")) #'self.players(1)'
-        self.Choice2.place(x = 485, y = 100)
-        self.Choice2.configure(width = 10)"""
 
     def setGrowth(self):
         self.growthAmount = self.grow.get()
         #self.report("set Tail Growth to " + str(self.growthAmount))
 
-    def setWrap(self, boole):
+    def setWrap(self, boole): #determine whether player dies when goes off screen or appears on other side?
         if boole:
             self.wrapping = "wrapped"
             buttonText = "wraps"
@@ -272,13 +268,13 @@ class SnakeMenuRunner:
         self.Choice.place(x = 485, y = 400)
         self.Choice.configure(width = 10)
 
-    def wrap_explain(self):
+    def wrap_explain(self): # explains what the wrapping button is
         self.explanation = tk.Button(self.frame, text="With No Boundaries on, snakes will wrap around screen.", fg="Green", command= self.explain_further_DUH_DUh_duhh)
         self.explanation.place(x= 20, y = 450)
-    def explain_further_DUH_DUh_duhh(self):
+    def explain_further_DUH_DUh_duhh(self): #for fun on menu
         self.explanation2 = tk.Button(self.frame, text="or will they???!!!", fg="Green", command= self.explain_further_DUH_DUh_duhh_anotherduhhhh)
         self.explanation2.place(x= 20, y = 470)
-    def explain_further_DUH_DUh_duhh_anotherduhhhh(self):
+    def explain_further_DUH_DUh_duhh_anotherduhhhh(self): #for more fun
         self.explanation3 = tk.Button(self.frame, text="they will", fg="Green", command= self.why_would_you_click_this_inconspicous_button)
         self.explanation3.place(x= 20, y = 490)
     def Bullets(self, boole):
@@ -292,7 +288,7 @@ class SnakeMenuRunner:
         self.Choice5.place(x= 485, y = 360)
         self.Choice5.configure(width = 10)
 
-    def why_would_you_click_this_inconspicous_button(self):
+    def why_would_you_click_this_inconspicous_button(self): #if the user doesn't stop clicking
         if self.trollCount == 0:
             self.report("now why would you click this inconspicous button?")
         elif self.trollCount < 2:
@@ -301,7 +297,7 @@ class SnakeMenuRunner:
         else:
             self.dont_click_me()
         self.trollCount += 1
-    def setArenaSize(self, the_size): 
+    def setArenaSize(self, the_size): #sets the size of the arena
         if the_size == 'small':
             self.x_size = 90
             self.y_size = 54
@@ -315,7 +311,7 @@ class SnakeMenuRunner:
         self.Choice5 = tk.Button(self.frame, text = the_size, fg = "Green", command = lambda: self.report("Do not click me")) #'self.players(1)'
         self.Choice5.place(x = 485, y = 180)
         self.Choice5.configure(width = 10)
-    def hidden_game(self, count):
+    def hidden_game(self, count): # this is our totally hidden game within a game
         if count == 0:
             self.report("congratulations!!! You have discovered the extremely well concealed game within a\n  game worth about 8 points! Click this button again to play the game DodgeBall\n  (more like DodgeSquare actually lol)")
             self.count += 1
@@ -333,14 +329,14 @@ class SnakeMenuRunner:
 
     def explanatory(self):
         self.report("this is self explanatory")
-    def explain_currentChoice(self):
+    def explain_currentChoice(self): 
         self.report("this section shows your current choice")
-    def write_explanation(self):
+    def write_explanation(self): 
         self.explanation4 = tk.Button(self.frame, text="<--This is the snake menu", fg="red", command=self.dont_click_me)
         self.explanation4.place(x = 285, y = 10)
     def dont_click_me(self):
         self.report("don't click me")
-    def play(self):
+    def play(self): #plays the main snake game with currently selected options
         self.setGrowth()
         a = self.setMovementSpeed()
         game = Two_Player_Snake.PlaySnake(self.numPlayers, self.growthAmount, self.x_size, self.y_size, 1000,600, self.wrapping, self.agility, self.bullets, self.gameType)
@@ -348,7 +344,7 @@ class SnakeMenuRunner:
             time.sleep(a/60.0)  # 1.0 is placeholder for variable that changes snake from arcade to modern
             game.update()
         game.removeThis()
-    def play2(self):
+    def play2(self): # plays the game within the game
         game = Two_Player_Snake.PlayDodgeBall(200, 120, 1000, 600)
         while not game.GAME_OVER:
             time.sleep(1.0/60.0)  # 1.0 is placeholder for variable that changes snake from arcade to modern
