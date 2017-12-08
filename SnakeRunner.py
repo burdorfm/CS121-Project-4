@@ -8,7 +8,7 @@ import Two_Player_Snake
 import tkinter as tk
 
 class SnakeMenuRunner:
-    def __init__(self):
+    def __init__(self, console_lines = 10):
         #Game.__init__(self,"Snake Menu",60,45,800,600,topology='wrapped',console_lines=6)
         """
         self.report("Players(s): Don't hit either snake's body or the walls.")
@@ -16,6 +16,7 @@ class SnakeMenuRunner:
         self.report("player1: use a,w,s,d to move.      player2: use arrow keys to move.")
         self.report("player1: press d to start.         player2: press left arrow to start.")
         """ #steal report
+
         self.INIT_WIDTH = 500
         self.INIT_HEIGHT = 600
         self.explanation = None
@@ -25,33 +26,42 @@ class SnakeMenuRunner:
         self.frame.pack(fill=BOTH, expand=1)
         self.howMany = 0
         #MAKE A FRAME OF 400X300
-        
+        if console_lines > 0:
+            self.text = Text(self.root,height=console_lines,bg="#000000",fg="#A0F090",width=115)
+            self.text.pack()
+        else:
+            self.text = None
+
         self.header = tk.Button(self.frame, text="Snake Menu", fg="red", command=self.write_explanation)
         self.header.place(x = 200,y = 10)
 
-        self.below = tk.Button(self.frame, text="Select one option from each row below.", fg="Red", command=None)
+        self.below = tk.Button(self.frame, text="Select up to one option from each row below.", fg="Red", command=None)
         self.below.place(x=120, y=30)
 
-        self.choice1 = tk.Button(self.frame, text="Number of Players:", fg="Red", command=None)
-        self.choice1.place(x = 30,y = 60)
+        self.numP = tk.Button(self.frame, text="Number of Players:", fg="Red", command=None)
+        self.numP.place(x = 30,y = 60)
 
-        self.singleplayer = tk.Button(self.frame, text = "One Player", fg = "Green", command = None) #'self.players(1)'
+        self.singleplayer = tk.Button(self.frame, text = "One Player", fg = "Green", command = lambda: self.setNumPlayers(1)) #'self.players(1)'
         self.singleplayer.place(x = 180, y = 60)
 
-        self.twoplayer = tk.Button(self.frame, text = "Two Players", fg = "Green", command = None)
+        self.twoplayer = tk.Button(self.frame, text = "Two Players", fg = "Green", command = lambda: self.setNumPlayers(2))
         self.twoplayer.place(x = 275, y = 60)
-        
-        self.choice2 = tk.Button(self.frame, text="Movement Speed:", fg="Red", command=None)
-        self.choice2.place(x = 30,y = 100)
 
-        self.slow = tk.Button(self.frame, text="Slow", fg="Green", command=None)
+        self.numPlayers = 1
+        
+        self.movS = tk.Button(self.frame, text="Movement Speed:", fg="Red", command= None)
+        self.movS.place(x = 30,y = 100)
+
+        self.slow = tk.Button(self.frame, text="Slow", fg="Green", command=lambda: self.setMovementSpeed("slow"))
         self.slow.place(x = 180, y = 100)
 
-        self.medium = tk.Button(self.frame, text="Medium", fg="Green", command=None)
+        self.medium = tk.Button(self.frame, text="Medium", fg="Green", command=lambda: self.setMovementSpeed("medium"))
         self.medium.place(x = 240, y = 100)
 
-        self.fast = tk.Button(self.frame, text="Fast", fg="Green", command=None)
+        self.fast = tk.Button(self.frame, text="Fast", fg="Green", command=lambda: self.setMovementSpeed("fast"))
         self.fast.place(x = 320, y = 100)
+
+        self.movementSpeed = "medium"
 
         self.tailgrowth = tk.Button(self.frame, text="Tail Growth:", fg="Red", command=None)
         self.tailgrowth.place(x = 30, y = 140)
@@ -110,7 +120,7 @@ class SnakeMenuRunner:
         self.nobullets = tk.Button(self.frame, text="No", fg="Green", command=None)
         self.nobullets.place(x= 240, y = 360)
 
-        self.wrap_or_no = tk.Button(self.frame, text="No Boundries?", fg="Red", command=self.wrap_explain)
+        self.wrap_or_no = tk.Button(self.frame, text="No Boundaries?", fg="Red", command=self.wrap_explain)
         self.wrap_or_no.place(x= 30, y = 400)
 
         self.yeswrap = tk.Button(self.frame, text="Yes", fg="Green", command=None)
@@ -125,6 +135,21 @@ class SnakeMenuRunner:
         #add settings, arena size: small, medium, large, other styles
 
         self.use_mouse = True  #maybe use a mouse thing to determine snake movement
+    def report(self,line=""):
+        line += "\n"
+        a = "  " + line
+        if self.text == None:
+            print(a)
+        else:
+            self.text.insert(END, a)
+            self.text.see(END)
+    def setNumPlayers(self, num):
+        self.numPlayers = 1
+        self.report("set snek movement speed to " + str(num))
+
+    def setMovementSpeed(self, movString):
+        self.movementSpeed = movString
+        self.report("set movement speed to " + movString)
 
     def wrap_explain(self):
         self.explanation = tk.Button(self.frame, text="Running into the wall will cause you to enter on the other side of the map.", fg="Green", command= self.dont_click_me)
@@ -140,15 +165,9 @@ class SnakeMenuRunner:
         print("don't click me")
     def play(self):
         #game = chosen_game
-        game = Two_Player_Snake.PlaySnake(2, 3, 200, 150, 800, 600, 'yguyjgjkyhgjk')
+        game = Two_Player_Snake.PlaySnake(2, 3, 200, 150, 2000,600, 'yguyjgjkyhgjk')
         while not game.GAME_OVER:
             time.sleep(.1/60.0)  # 1.0 is placeholder for variable that changes snake from arcade to modern
             game.update()
 
 a = SnakeMenuRunner()
-
-
-
-
-
-
