@@ -591,12 +591,11 @@ class PlayDodgeBall(Game): #our game within our main gamee
                     if abs(difVector.dx) <= 1/.30 and abs(difVector.dy) <= 1/.30:
                         self.report("you have died")
                         self.report("Congrats! You survived for " + str(int(self.time1 - self.time0)) + " seconds.")
-                        time.sleep(2.0)
                         self.GAME_OVER = True
 
         Game.update(self)
     def removeThis(self):
-        time.sleep(3.0)
+        time.sleep(4.5)
         #self.destroy()
         #self.canvas.destroy()
         self.canvas.pack_forget()
