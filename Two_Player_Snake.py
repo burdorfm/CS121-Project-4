@@ -50,14 +50,14 @@ class SnakeHead(Agent):
     def color(self):
         return self.initColor
     
-    def shape(self):
+    def shape(self): #shape of the head
         p1 = self.position + Vector2D( self.width, self.length)       
         p2 = self.position + Vector2D(-self.width, self.length)        
         p3 = self.position + Vector2D(-self.width,-self.length)       
         p4 = self.position + Vector2D( self.width,-self.length)       
         return [p1, p2, p3, p4]
 
-    def outOfBounds(self):
+    def outOfBounds(self): #determines whether the head is out of bounds or not
         if self.position.y - self.length/2.0 < self.world.bounds.ymin:
             return True
         if self.position.y + self.length/2.0 > self.world.bounds.ymax:
@@ -68,7 +68,7 @@ class SnakeHead(Agent):
             return True
 
         
-    def move_down(self):
+    def move_down(self): #snake movements
         self.position.y -= self.agility
     def move_up(self):
         self.position.y += self.agility
@@ -77,7 +77,7 @@ class SnakeHead(Agent):
     def move_right(self):
         self.position.x += self.agility
 
-    def updatePos(self, direction):
+    def updatePos(self, direction): #tells snake to change directions
         if direction == "up":
             self.move_up()
         elif direction == "down":           
@@ -87,7 +87,7 @@ class SnakeHead(Agent):
         elif direction == "left":
             self.move_left()
 
-    def changeDirection(self, direction):
+    def changeDirection(self, direction): #gives snake the new direction attribute 
         self.storedDirection = self.direction
         self.direction = direction
         
@@ -110,7 +110,7 @@ class SnakeBody(Agent): # objects that follow the head. each follows the object 
         Agent.__init__(self,self.position,world)
         #instantiates
 
-    def initPosition(self, followObject, minAdd, maxAdd):
+    def initPosition(self, followObject, minAdd, maxAdd): #initializes the position of the tail segment, tells it to follow object in front of it
         a = random.randint(minAdd,maxAdd)
         if followObject.direction == None:
             if followObject.position.x > .5:
@@ -126,7 +126,7 @@ class SnakeBody(Agent): # objects that follow the head. each follows the object 
         elif followObject.direction == "down":
             return followObject.position + Vector2D(0, a*followObject.length)
     
-    def outOfBounds(self):
+    def outOfBounds(self): #checks to see if tail segment is out of bounds
         if self.position.y - self.length/2.0 < self.world.bounds.ymin:
             return True
         if self.position.y + self.length/2.0 > self.world.bounds.ymax:
@@ -139,7 +139,7 @@ class SnakeBody(Agent): # objects that follow the head. each follows the object 
     def color(self):
         return self.initColor
 
-    def shape(self):
+    def shape(self): #shaoe of tail segment
         p1 = self.position + Vector2D( self.width/2, self.length/2)       
         p2 = self.position + Vector2D(-self.width/2, self.length/2)        
         p3 = self.position + Vector2D(-self.width/2,-self.length/2)       
@@ -156,13 +156,13 @@ class SnakeBody(Agent): # objects that follow the head. each follows the object 
         self.position.x += self.agility
 
     def updatePos(self, direction):
-        if self.frontSeg.storedDirection != self.frontSeg.direction:
+        if self.frontSeg.storedDirection != self.frontSeg.direction: #segment turns at point where segment in front of it turns
             self.turnPositions[0].append(self.frontSeg.position.x)
             self.turnPositions[1].append(self.frontSeg.position.y)
             self.turnPositions[2].append(self.frontSeg.direction)
             self.frontSeg.storedDirection = self.frontSeg.direction
 
-        if len(self.turnPositions[0]) > 0:
+        if len(self.turnPositions[0]) > 0: # tells segment where to turn
             a = abs(self.position.x - self.turnPositions[0][0])
             b = abs(self.position.y - self.turnPositions[1][0])
             if a < .003 or b < .003:
@@ -182,7 +182,7 @@ class SnakeBody(Agent): # objects that follow the head. each follows the object 
 
     def changeDirection(self, direction):
         if (self.direction == "up" and direction == "down") or (self.direction == "down" and direction == "up") or (self.direction == "left" and direction == "right") or (self.direction == "right" and direction == "left"):
-            return
+            return # prevents snake from moving backwards
         self.storedDirection = self.direction
         self.direction = direction
 
@@ -259,7 +259,7 @@ class Bullet(Agent): # bullet that the snake can shoot as weapon (useful for two
         self.updatePos(self.direction)
     
 
-class Snake: 
+class Snake: #the snake
     def __init__(self, world, init_xpos, init_ypos, agility, minAdd, maxAdd):
         self.headColor = "#%06x" % random.randint(0, 0xFFFFFF)
         self.tailColor = "#%06x" % random.randint(0, 0xFFFFFF)
@@ -273,7 +273,7 @@ class Snake:
         self.world = world
         self.length = 2
         self.dead = False
-    def shoot(self):
+    def shoot(self): #shoots a bullet in direction of snake
         if self.head.direction == None:
             return
         if self.length == 1:
@@ -285,12 +285,12 @@ class Snake:
         self.length -= 1
         a = Bullet(self.world, self.head)
         self.snakeList.append(a)
-    def shrink(self):
+    def shrink(self): # for snake dodge ball
         self.length -= 1
         temp = self.tail
         self.tail = self.tail.frontSeg
         self.world.remove(temp)
-    def grow(self):
+    def grow(self): # for snake dodge ball
         newTail = SnakeBody(self.world, self.tail, self.tailColor, self.minAdd, self.maxAdd)
         self.tail = newTail
         self.length += 1
@@ -309,7 +309,7 @@ class Snake:
             return True
         return False
 
-class Apple(Agent):
+class Apple(Agent): # food for the snake
     def __init__(self, world):
         self.position = world.bounds.point_at(random.uniform(.015,.99),random.uniform(.013,.98))  #.99, .98
         self.width = 1
@@ -363,7 +363,7 @@ class PlaySnake(Game):
                 self.report("passing into a wall will let you wrap around the screen")
             self.report("player1: press d to start.         player2: press left arrow to start.")
 
-    def handle_keypress(self,event):       
+    def handle_keypress(self,event):       # relates keypress to action
         Game.handle_keypress(self,event)
         """if event.char == ' ':
             for snakes in self.snakeList:
@@ -405,7 +405,7 @@ class PlaySnake(Game):
                 if self.snakeList[1].head.direction != None:
                     self.snakeList[1].changeDir("right")
                     
-    def display_length(self, a):
+    def display_length(self, a): #displays length of snake
         self.report(str(self.snakeList[a]) + " is now length: " + str(self.snakeList[a].length))
 
     def update(self):                #Determines how much eats per food
@@ -527,7 +527,7 @@ class PlaySnake(Game):
         self.canvas.pack_forget()
         self.root.destroy()
 
-class PlayDodgeBall(Game):
+class PlayDodgeBall(Game): #our game within our main gamee
     def __init__(self, bw, bh, ww, wh, topology = "wrapped"):
         Game.__init__(self,"Snake",bw,bh,ww,wh,topology,console_lines=6)
         self.dodger = Snake(self, .3, .3, .5, 1, 1)
