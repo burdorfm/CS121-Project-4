@@ -14,7 +14,7 @@ Here is a list of some of the things we implemented:
 - limited power for shooting bullets (loose section of tail with each shot)
 - prize (the apple)
 - damage mode (if the player runs into self or other player or bullet)
-- leveling uo (the game gets harder as the player grows because they have less room to move)
+- leveling up (the game gets harder as the player grows because they have less room to move)
 - various game modes and a game within our game (our mini game Dodgeball)
 - multiplayer with a second person
 - and a bunch of choose our own/modifications that the player can make in the menu
