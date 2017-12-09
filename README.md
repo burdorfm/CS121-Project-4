@@ -2,7 +2,7 @@
 
 Mitch Burdorf and Reilly Cannon
 
-Hey guys, this is our game(s). We made snake (and quite a few twists and variations on it). We gave the player lots of options
+Hey guys, this is our game. We made snake (and quite a few twists and variations on it). We gave the player lots of options
 for tweaking game settings and modes. We even added a mini-game that we call Dodgeball. Some of the features are the most fun
 to play on certain modes, so make sure you explore the menu and the different options. Three modes we recommend are classic
 snake, snake with wrapping, and two player snake with bullets. You are also able to mix and match settings to get a fairly wide
