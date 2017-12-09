@@ -197,8 +197,8 @@ class SnakeMenuRunner: # this is the menu that runs all of our versions of snake
         self.playthegame.place(x = 150, y = 430)
 
         self.count = 0
-        self.hidden_game_within_game = tk.Button(self.frame, text = "Don't click me!!!", fg = "Red", command = lambda: self.hidden_game(self.count))
-        self.hidden_game_within_game.place(x = 480, y = 500)
+        self.hidden_game_within_game = tk.Button(self.frame, text = "Game within a game", fg = "Red", command = lambda: self.hidden_game(self.count))
+        self.hidden_game_within_game.place(x = 450, y = 500)
 
         #add settings, arena size: small, medium, large, other styles
 
