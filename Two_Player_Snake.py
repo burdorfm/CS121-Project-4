@@ -354,14 +354,24 @@ class PlaySnake(Game):
         self.foodNumber = foodNumber
         self.game_over = False
         if self.numSnakes == 2:
-            self.report("player1: use a,w,s,d to move.      player2: use arrow keys to move.")
+            self.report("player1: use a,w,s,d to move.      player2: use j,k,i,l keys to move.")
             if self.bullets:
                 self.report("player1 shoots with 'f' and player2 shoots with ';'")
             if topology != "wrapped":
                 self.report("do not hit walls or any snake's body. that will kill you")
             else:
                 self.report("passing into a wall will let you wrap around the screen")
-            self.report("player1: press d to start.         player2: press left arrow to start.")
+            self.report("player1: press d to start, player2: press left arrow to start, collect food to grow")
+        elif self.numSnakes == 1:
+            self.report("use a,w,s,d to move.")
+            if self.bullets:
+                self.report("you shoot with 'f'")
+            if topology != "wrapped":
+                self.report("do not hit walls or your body. that will kill you")
+            else:
+                self.report("passing into a wall will let you wrap around the screen")
+            self.report("collect food to grow, press d to start")
+            
 
     def handle_keypress(self,event):       # relates keypress to action
         Game.handle_keypress(self,event)
@@ -535,6 +545,10 @@ class PlayDodgeBall(Game): #our game within our main gamee
         self.game_over = False
         self.time0 = time.time()
         self.counter = 1
+        self.report("this is dodgeball!!! dodge the balls")
+        self.report("plot twist! you are throwing them")
+        self.report("press w,a,s or d to start")
+        self.report("try to survive")
 
     def handle_keypress(self,event):
         Game.handle_keypress(self,event)
