@@ -523,7 +523,7 @@ class PlaySnake(Game):
             self.GAME_OVER = True
         Game.update(self)
     def removeThis(self):
-        time.sleep(3.0)iikl
+        time.sleep(3.0)
         self.canvas.pack_forget()
         self.root.destroy()
 
