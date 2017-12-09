@@ -19,5 +19,5 @@ Here is a list of some of the things we implemented:
 - multiplayer with a second person
 - and a bunch of choose our own/modifications that the player can make in the menu
 
-We hope you enjoy our game. You can probably tell we had a lot of fun playing it!
+We hope you enjoy our game. You can probably tell we had a lot of fun making it!
 
